@@ -1,42 +1,101 @@
 const Card = require('../models/card');
+const {
+  ERROR_CODE_INCORRECT_DATA,
+  ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_DEFAULT,
+  defaultErrorMessage,
+} = require('../utils/utils');
 
-//   createCard создаёт карточку
-//   deleteCard удаляет карточку по идентификатору
-//   likeCard,
-//   dislikeCard,
-
-// getCards возвращает все карточки
-const getCards = (req, res) => {
+module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.status(200).send(cards))
-    .catch(() => res.status(500).send({ message: 'Server Error' }));
+  // Чтобы получить всю информацию об авторе карточки,
+  // нужно вызвать метод populate, передав ему имя поля 'owner'
+    .populate('owner')
+    .then((cards) => res.send({ data: cards }))
+    .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage }));
 };
 
-const createCard = (req, res) => {
-
-};
-/*В теле POST-запроса на создание карточки передайте
-JSON-объект с двумя полями: name и link.*/
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id); // _id станет доступен
+  // в модели карточки есть поле owner, в котором
+  // должен быть идентификатор документа пользователя - ownerId
+  // Теперь этот идентификатор нужно записывать в поле owner
+  // при создании новой карточки
+  const { name, link, ownerId } = req.body;
+  // const owner = req.user._id;
+
+  Card.create({ name, link, owner: ownerId })
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+    });
 };
 
-const deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res) => {
+  const { cardId } = req.params.id;
 
+  Card.findByIdAndRemove(cardId)
+    .then((card) => {
+      if (!card) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
+      }
+      return res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+    });
 };
 
-const likeCard = (req, res) => {
-
+module.exports.likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    // чтобы в массиве лайков содержались уникальные значения
+    // добавляем пользователя в массив, только если его там ещё нет
+    // используя оператор $addToSet. оператор $pull используем чтобы убрать лайк
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
+        return;
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+    });
 };
 
-const dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
+    .then((card) => {
+      if (!card) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
+      }
 
-};
-
-module.exports = {
-  getCards,
-  createCard,
-  deleteCard,
-  likeCard,
-  dislikeCard,
+      return res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
+        return;
+      }
+      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+    });
 };

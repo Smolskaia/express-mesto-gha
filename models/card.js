@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+// Опишем схему:
 const cardSchema = new mongoose.Schema({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
     type: String, // имя — это строка
@@ -14,11 +14,12 @@ const cardSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'user',
   },
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
+  likes: {
+    type: Array,
     default: [],
-  }],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -26,4 +27,6 @@ const cardSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 // создаём модель и экспортируем её
+// передаем методу mongoose.model два аргумента:
+// имя модели и схему, которая описывает будущие документы
 module.exports = mongoose.model('card', cardSchema);

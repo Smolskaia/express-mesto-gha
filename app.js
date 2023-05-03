@@ -1,7 +1,4 @@
 const express = require('express');
-// // path встроенная в нод.джс утилита для формирования путей к файлам
-// const path = require('path');
-// const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
 const router = require('./routes/index');
 // Слушаем 3000 порт

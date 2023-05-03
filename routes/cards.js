@@ -1,5 +1,6 @@
-const express = require('express');
+const cardRouter = require('express').Router();
 
+// подключаем контроллеры
 const {
   getCards,
   createCard,
@@ -7,8 +8,6 @@ const {
   likeCard,
   dislikeCard,
 } = require('../controllers/cards');
-
-const cardRouter = express.Router();
 
 cardRouter.get('/cards', getCards);
 cardRouter.post('/cards', createCard);
