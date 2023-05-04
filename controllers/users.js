@@ -51,10 +51,9 @@ const createUser = (req, res) => {
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
-  // const { userId } = req.user._id;
 
   User.findByIdAndUpdate(
-    req.params.userId,
+    req.user._id,
     { name, about },
     { new: true, runValidators: true },
   )
@@ -69,12 +68,11 @@ const updateProfile = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  // const { userId } = req.user._id;
   // третьим аргументом метод обновления документов принимает объект опций
   // new: true - передать обновлённый объект на вход обработчику then
   // runValidators: true - валидировать новые данные перед записью в базу
   User.findByIdAndUpdate(
-    req.params.userId,
+    req.user._id,
     { avatar },
     { new: true, runValidators: true },
   )
