@@ -13,22 +13,19 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  const { userId } = req.user._id;
   // Метод findById ищет запись по идентификатору, то есть свойству _id
-  User.findById(userId)
+  User.findById(req.params.userId)
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect request' });
-        return;
+        return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect request' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
-        return;
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
       }
 
-      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
@@ -46,50 +43,47 @@ const createUser = (req, res) => {
   // если данные не записались
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect user data' });
-        return;
+        return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect user data' });
       }
-      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
-  const { userId } = req.user._id;
+  // const { userId } = req.user._id;
 
   User.findByIdAndUpdate(
-    userId,
+    req.params.userId,
     { name, about },
     { new: true, runValidators: true },
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect profile data' });
-        return;
+        return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect profile data' });
       }
-      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  const { userId } = req.user._id;
+  // const { userId } = req.user._id;
   // третьим аргументом метод обновления документов принимает объект опций
   // new: true - передать обновлённый объект на вход обработчику then
   // runValidators: true - валидировать новые данные перед записью в базу
   User.findByIdAndUpdate(
-    userId,
+    req.params.userId,
     { avatar },
     { new: true, runValidators: true },
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect avatar data' });
-        return;
+        return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect avatar data' });
       }
-      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
