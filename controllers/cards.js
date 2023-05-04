@@ -37,16 +37,13 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail()
     .then((card) => {
-      if (!card) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
-      }
-      return res.send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
       }
-      if (err.name === 'ValidationError') {
+      if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
       }
       return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
