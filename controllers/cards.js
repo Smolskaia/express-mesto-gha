@@ -24,7 +24,7 @@ module.exports.createCard = (req, res) => {
   // const owner = req.user._id;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
@@ -35,6 +35,7 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail()
     .then((card) => {
       if (!card) {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });

@@ -39,7 +39,7 @@ const createUser = (req, res) => {
   вернуть клиенту данные или ошибку */
 
   // вернём записанные в базу данные
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(201).send({ data: user }))
   // если данные не записались
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -59,6 +59,9 @@ const updateProfile = (req, res) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
+      }
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect profile data' });
       }
@@ -78,6 +81,9 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
+      }
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect avatar data' });
       }
