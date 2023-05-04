@@ -46,6 +46,9 @@ module.exports.deleteCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
       }
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
+      }
       return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
