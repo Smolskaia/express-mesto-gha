@@ -17,7 +17,7 @@ module.exports.getCards = (req, res) => {
 
 module.exports.createCard = (req, res) => {
   // в модели карточки есть поле owner, в котором
-  // должен быть идентификатор документа пользователя - ownerId
+  // должен быть идентификатор карточки пользователя - ownerId
   // Теперь этот идентификатор нужно записывать в поле owner
   // при создании новой карточки
   const { name, link, ownerId } = req.body;
@@ -27,10 +27,9 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
-        return;
+        return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
       }
-      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
