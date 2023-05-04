@@ -20,10 +20,10 @@ module.exports.createCard = (req, res) => {
   // должен быть идентификатор карточки пользователя - ownerId
   // Теперь этот идентификатор нужно записывать в поле owner
   // при создании новой карточки
-  const { name, link, ownerId } = req.body;
+  const { name, link } = req.body;
   // const owner = req.user._id;
 
-  Card.create({ name, link, owner: ownerId })
+  Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -34,9 +34,7 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  const { cardId } = req.params.id;
-
-  Card.findByIdAndRemove(cardId)
+  Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
@@ -45,10 +43,9 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
-        return;
+        return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
       }
-      res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
