@@ -57,6 +57,7 @@ const updateProfile = (req, res) => {
     { name, about },
     { new: true, runValidators: true },
   )
+    .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -79,6 +80,7 @@ const updateAvatar = (req, res) => {
     { avatar },
     { new: true, runValidators: true },
   )
+    .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
