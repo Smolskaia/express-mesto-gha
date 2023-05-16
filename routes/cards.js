@@ -1,5 +1,9 @@
 const cardRouter = require('express').Router();
-
+// подключаем валидацию
+const {
+  validationCreateCard,
+  validationCardId,
+} = require('../utils/validation');
 // подключаем контроллеры
 const {
   getCards,
@@ -10,9 +14,9 @@ const {
 } = require('../controllers/cards');
 
 cardRouter.get('/', getCards);
-cardRouter.post('/', createCard);
-cardRouter.delete('/:cardId', deleteCard);
-cardRouter.put('/:cardId/likes', likeCard);
-cardRouter.delete('/:cardId/likes', dislikeCard);
+cardRouter.post('/', validationCreateCard, createCard);
+cardRouter.delete('/:cardId', validationCardId, deleteCard);
+cardRouter.put('/:cardId/likes', validationCardId, likeCard);
+cardRouter.delete('/:cardId/likes', validationCardId, dislikeCard);
 
 module.exports = cardRouter;

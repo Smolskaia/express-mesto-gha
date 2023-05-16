@@ -3,6 +3,7 @@ const router = require('express').Router();
 //   ERROR_CODE_NOT_FOUND,
 // } = require('../utils/utils');
 const { createUser, login } = require('../controllers/users');
+const { validationSignin, validationSignup } = require('../utils/validation');
 const auth = require('../middlewares/auth');
 const NotFoundError = require('../errors/notFoundError');
 
@@ -15,8 +16,8 @@ const cardRouter = require('./cards');
 router.use('/users', auth, userRouter);
 router.use('/cards', auth, cardRouter);
 
-router.post('/signin', login);
-router.post('/signup', createUser);
+router.post('/signin', validationSignin, login);
+router.post('/signup', validationSignup, createUser);
 
 router.use('/*', (req, res, next) => {
   // res.status(ERROR_CODE_NOT_FOUND)

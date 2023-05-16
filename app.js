@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const router = require('./routes/index');
@@ -21,7 +22,14 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 //   next();
 // });
 
-app.use(handleErrors);
+// обработчики ошибок
+/** errors() будет обрабатывать только ошибки,
+ * которые сгенерировал celebrate. Все остальные ошибки он передаст дальше,
+ * где их перехватит централизованный обработчик.
+ * Статус ошибки celebrate, — 400 */
+app.use(errors()); // обработчик ошибок celebrate
+app.use(handleErrors); // централизованный обработчик
+
 // подключаем маршруты
 app.use('/', router);
 // запускаем сервер на порте 300
