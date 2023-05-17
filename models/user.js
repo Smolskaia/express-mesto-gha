@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const UnauthorizedError = require('../errors/unauthorizedError');
 
 // Опишем схему:
 const userSchema = new mongoose.Schema({
@@ -39,6 +41,33 @@ const userSchema = new mongoose.Schema({
     select: false, // Так по умолчанию хеш пароля пользователя не будет возвращаться из базы
   },
 }, { versionKey: false });
+
+// добавим метод findUserByCredentials схеме пользователя
+// у него будет два параметра — почта и пароль
+userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email }) // this — это модель User
+    .select('+password')
+    .then((user) => {
+      // получаем объект пользователя, если почта и пароль подошли
+      // не нашёлся — отклоняем промис
+      if (!user) {
+        return Promise.reject(
+          new UnauthorizedError('Incorrect email or password'),
+        );
+      }
+      // нашёлся — сравниваем хеши
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            // отклоняем промис
+            return Promise.reject(
+              new UnauthorizedError('Incorrect email or password'),
+            );
+          }
+          return user;
+        });
+    });
+};
 
 // создаём модель и экспортируем её
 // передаем методу mongoose.model два аргумента:

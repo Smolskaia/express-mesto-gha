@@ -40,17 +40,15 @@ const getUser = (req, res, next) => {
   User.findOne({ _id: req.user._id })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('User with such id is not found');
+        return next(new NotFoundError('User with such id is not found'));
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        // res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect user data' });
-        // return;
-        next(BadRequestError('Incorrect user data'));
+        return next(new BadRequestError('Incorrect user data'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -139,15 +137,11 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-    // аутентификация успешна!
+    // аутентификация успешна! пользователь в переменной user
     // создадим токен сроком на неделю.
     // В пейлоуд токена записываем только свойство _id,
     // которое содержит идентификатор пользователя
-      const token = jwt.sign(
-        { _id: user._id },
-        'some-secret-key',
-        { expiresIn: '7d' },
-      );
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       /* метод res.cookie:Первый аргумент — это ключ, второй — значение. */
       res.cookie('jwt', token, {
         // token - наш JWT токен, который мы отправляем
@@ -155,7 +149,7 @@ const login = (req, res, next) => {
         httpOnly: true, // к кукам нет доступа из JS
         sameSite: true,
       });
-      res.status(200).send({ message: 'Successful login' });
+      res.status(200).send({ message: 'Successful authentication' });
       // res.send({ token }); // отправка токена в теле ответа
     })
     .catch(next);
