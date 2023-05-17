@@ -80,14 +80,11 @@ const createUser = (req, res, next) => {
         }))// если данные не записались
         .catch((err) => {
           if (err.code === 11000) {
-            // return res.status(409).send({ message: 'This user already exists' });
             return next(new ConflictError('This user already exists'));
           }
           if (err.name === 'ValidationError') {
-          // return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect user data' });
             return next(new BadRequestError('Incorrect user data'));
           }
-          // return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
           return next(err);
         });
     });
@@ -105,7 +102,6 @@ const updateProfile = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        // return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
         return next(new NotFoundError('User with such id is not found'));
       }
       // if (err.name === 'CastError' || err.name === 'ValidationError') {
@@ -133,10 +129,8 @@ const updateAvatar = (req, res, next) => {
       //   return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
       // }
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        // return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect avatar data' });
         next(new BadRequestError('Incorrect avatar data'));
       }
-      // return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
       return next(err);
     });
 };
