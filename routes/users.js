@@ -16,8 +16,8 @@ const {
 } = require('../controllers/users');
 
 userRouter.get('/', getUsers); // возвращает всех пользователей
-userRouter.get('/:userId', validationUserId, getUserById); // возвращает пользователя по _id
 userRouter.get('/me', getUser); // возвращает информацию о текущем пользователе
+userRouter.get('/:userId', validationUserId, getUserById); // возвращает пользователя по _id
 userRouter.patch('/me', validationUpdateProfile, updateProfile); // обновляет профиль
 userRouter.patch('/me/avatar', validationUpdateAvatar, updateAvatar); // обновляет аватар
 

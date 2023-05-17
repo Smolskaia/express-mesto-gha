@@ -1,12 +1,6 @@
 const bcrypt = require('bcryptjs'); // импортируем bcrypt для хеширования пароля
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
 const User = require('../models/user');
-// const {
-//   ERROR_CODE_INCORRECT_DATA,
-//   ERROR_CODE_NOT_FOUND,
-//   ERROR_CODE_DEFAULT,
-//   defaultErrorMessage,
-// } = require('../utils/utils');
 const NotFoundError = require('../errors/notFoundError');
 const BadRequestError = require('../errors/badRequestError');
 const ConflictError = require('../errors/conflictError');
@@ -37,12 +31,13 @@ const getUserById = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
+  // console.log(req.user._id);
   User.findOne({ _id: req.user._id })
     .then((user) => {
       if (!user) {
         return next(new NotFoundError('User with such id is not found'));
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -142,15 +137,16 @@ const login = (req, res, next) => {
     // В пейлоуд токена записываем только свойство _id,
     // которое содержит идентификатор пользователя
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      /* метод res.cookie:Первый аргумент — это ключ, второй — значение. */
-      res.cookie('jwt', token, {
-        // token - наш JWT токен, который мы отправляем
-        maxAge: 3600000 * 24 * 7, // опция maxAge хранит срок жизни куки (7 дней)
-        httpOnly: true, // к кукам нет доступа из JS
-        sameSite: true,
-      });
-      res.status(200).send({ message: 'Successful authentication' });
-      // res.send({ token }); // отправка токена в теле ответа
+      // /* метод res.cookie:Первый аргумент — это ключ, второй — значение. */
+      // res.cookie('jwt', token, {
+      //   // token - наш JWT токен, который мы отправляем
+      //   maxAge: 3600000 * 24 * 7, // опция maxAge хранит срок жизни куки (7 дней)
+      //   httpOnly: true, // к кукам нет доступа из JS
+      //   sameSite: true,
+      // });
+      // res.status(200).send({ message: 'Successful authentication' });
+
+      res.send({ token }); // отправка токена в теле ответа
     })
     .catch(next);
 };

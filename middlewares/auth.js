@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
   // убеждаемся, что он есть или начинается с Bearer
   if (!authorization || !authorization.startsWith('Bearer ')) {
     // return res.status(401).send({ message: 'Необходима авторизация' });
-    throw new UnauthorizedError('Authorization required');
+    return next(new UnauthorizedError('Authorization required'));
   }
   // извлечём токен
   // Для этого вызовем метод replace,
