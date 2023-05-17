@@ -15,7 +15,6 @@ module.exports.getCards = (req, res, next) => {
   // нужно вызвать метод populate, передав ему имя поля 'owner'
     .populate('owner')
     .then((cards) => res.send({ data: cards }))
-    // .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage }));
     .catch(next);
 };
 
@@ -25,36 +24,16 @@ module.exports.createCard = (req, res, next) => {
   // Теперь этот идентификатор нужно записывать в поле owner
   // при создании новой карточки
   const { name, link } = req.body;
-  // const owner = req.user._id;
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
         return next(new BadRequestError('Incorrect card data'));
       }
-      // return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
       return next(err);
     });
 };
-
-// module.exports.deleteCard = (req, res, next) => {
-//   Card.findByIdAndRemove(req.params.cardId)
-//     .orFail()
-//     .then((card) => {
-//       res.send({ data: card });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
-//       }
-//       if (err.name === 'DocumentNotFoundError') {
-//         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
-//       }
-//       return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
-//     });
-// };
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
@@ -86,19 +65,14 @@ module.exports.likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        // res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
-        // return;
         return next(new NotFoundError('Card id not found'));
       }
       return res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        // res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
-        // return;
         return next(new BadRequestError('Incorrect card data'));
       }
-      // res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
       return next(err);
     });
 };
@@ -111,7 +85,6 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        // return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Card is not found' });
         return next(new NotFoundError('Card id not found'));
       }
 
@@ -119,11 +92,8 @@ module.exports.dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        // res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect card data' });
-        // return;
         return next(new BadRequestError('Incorrect card data'));
       }
-      // res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
       return next(err);
     });
 };

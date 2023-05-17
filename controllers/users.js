@@ -8,7 +8,6 @@ const ConflictError = require('../errors/conflictError');
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    // .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage }));
     .catch(next); // запись эквивалентна .catch(err => next(err));
 };
 
@@ -18,20 +17,14 @@ const getUserById = (req, res, next) => {
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      // if (err.name === 'CastError') {
-      //   return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect request' });
-      // }
       if (err.name === 'DocumentNotFoundError') {
-        // return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
         return next(new NotFoundError('User with such id is not found'));
       }
-      // return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
       return next(err);
     });
 };
 
 const getUser = (req, res, next) => {
-  // console.log(req.user._id);
   User.findOne({ _id: req.user._id })
     .then((user) => {
       if (!user) {
@@ -97,10 +90,6 @@ const updateProfile = (req, res, next) => {
       if (err.name === 'DocumentNotFoundError') {
         return next(new NotFoundError('User with such id is not found'));
       }
-      // if (err.name === 'CastError' || err.name === 'ValidationError') {
-      //   return res.status(ERROR_CODE_INCORRECT_DATA).send({ message: 'Incorrect profile data' });
-      // }
-      // return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
       return next(err);
     });
 };
@@ -118,9 +107,6 @@ const updateAvatar = (req, res, next) => {
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      // if (err.name === 'DocumentNotFoundError') {
-      //   return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'User is not found' });
-      // }
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         next(new BadRequestError('Incorrect avatar data'));
       }
@@ -137,15 +123,6 @@ const login = (req, res, next) => {
     // В пейлоуд токена записываем только свойство _id,
     // которое содержит идентификатор пользователя
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      // /* метод res.cookie:Первый аргумент — это ключ, второй — значение. */
-      // res.cookie('jwt', token, {
-      //   // token - наш JWT токен, который мы отправляем
-      //   maxAge: 3600000 * 24 * 7, // опция maxAge хранит срок жизни куки (7 дней)
-      //   httpOnly: true, // к кукам нет доступа из JS
-      //   sameSite: true,
-      // });
-      // res.status(200).send({ message: 'Successful authentication' });
-
       res.send({ token }); // отправка токена в теле ответа
     })
     .catch(next);
