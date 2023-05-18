@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs'); // импортируем bcrypt для хеширования пароля
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
 const User = require('../models/user');
-const SECRET_KEY = require('../utils/utils');
 const NotFoundError = require('../errors/notFoundError');
 const BadRequestError = require('../errors/badRequestError');
 const ConflictError = require('../errors/conflictError');
@@ -123,7 +122,7 @@ const login = (req, res, next) => {
     // создадим токен сроком на неделю.
     // В пейлоуд токена записываем только свойство _id,
     // которое содержит идентификатор пользователя
-      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token }); // отправка токена в теле ответа
     })
     .catch(next);
